@@ -1,6 +1,9 @@
-# EFPIX (Encrypted Flood Protocol for Information eXchange)
+<div align="center">
+    <img src="assets/LOGO.png", width="200"/>
+    <h1>EFPIX</h1>
+</div>
 
-EFPIX is a **zero-trust, encrypted flood-based relay communication protocol** designed for privacy, resilience, and metadata protection. It enables **end-to-end encryption**, **plausible deniability**, and **untraceable messaging**, even in hostile or degraded network environments.
+EFPIX (Encrypted Flood Protocol for Information eXchange) is a **zero-trust, encrypted flood-based relay communication protocol** designed for privacy, resilience, and metadata protection. It enables **end-to-end encryption**, **plausible deniability**, and **untraceable messaging**, even in hostile or degraded network environments.
 
 ## Features
 
