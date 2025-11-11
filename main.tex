@@ -9,8 +9,6 @@
 
 \usepackage[pdfauthor={Arin Upadhyay}, pdftitle={EFPIX: A zero-trust encrypted flood protocol}, pdfkeywords={encryption, flooding, anonymity, zero-trust, protocol, decentralized protocol, cryptography, censorship resistance}]{hyperref}
 
-
-
 \title{\textbf{EFPIX: A zero-trust encrypted flood protocol}}
 \author{Arin Upadhyay \\ \texttt{arinupadhyay.cs@gmail.com}}
 \date{\today}
@@ -39,15 +37,15 @@ Before encryption, the desired message is concatenated with\\
 \texttt{Timestamp}: A compactly encoded representation of the message's creation date and time.\\
 \texttt{Sender Alias}: It serves as the key/reference to look up the sender’s public key to the receiver in its memory. It is agreed upon before the start of the communication. It can be different for different receivers. It is retrieved from the local (other alias) to (public key, my alias) map.\\
 \texttt{Internal Address}: It can be used in different ways; for instance, to identify sub-clients in the case of a server that acts as a proxy for multiple clients or in the case of multiple processes that can process the decoded message.\\
-This concatenated data is used to generate a signature using the sender’s private key. The concatenated data is encrypted using the receiver's public key which is also retrieved from the local (other alias) to (public key, my alias) map. The hash is computed on the encrypted blob and the signature. Finally, hash, nonce, encrypted blob and signature are concatenated to produce the final encoded message.
+This concatenated data is used to generate a signature using the sender’s private key. The concatenated data is encrypted using the receiver's public key which is also retrieved from the local (other alias) to (public key, my alias) map. The hash is computed on the encrypted blob and the signature. Finally, nonce, encrypted blob and signature are concatenated to produce the final encoded message.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.55\linewidth]{encode_nbg.png}
+    \includegraphics[width=0.6\linewidth]{encode.png}
     \caption{Message encoding process}
 \end{figure}
 
-Hash: It is used to determine whether the relaying nodes have already seen this message. It prevents infinite looping relays. A proof-of-work (PoW) requirement must be met to minimize spam and tampering similar to Bitcoin \cite{bitcoin2008}. 
+Nonce: A proof-of-work (PoW) requirement must be met to minimize spam and tampering similar to Bitcoin \cite{bitcoin2008}. 
 However, the nonce is excluded from the hash calculation.
 PoW difficulty is chosen to cap the global theoretical message rate, ensuring that even high-performance nodes cannot flood the network beyond a theoretical maximum. This cost is incurred only by the sender, making it a user-side performance trade-off.\\
 Encryption: The encryption allows only the intended receiver to view the message and also metadata such as sender alias, internal address, and timestamp.\\
@@ -57,7 +55,7 @@ Signature: The receiver verifies the message integrity and authenticity using th
 \section{Decoding and Relaying}
 
 \texttt{Timestamp of reception}: The timestamp of data reception is recorded.\\
-\texttt{Deduplication}: The hash and nonce are extracted. Hash validity and the PoW is then verified. Every node keeps a record of hashes of previously relayed messages. If it has seen the hash, the message is discarded. If not, the hash is added to the record and the message is relayed to all neighbors.\\
+\texttt{Deduplication}: A hash is calculated on the packet excluding the nonce. It is used to determine whether the relaying nodes have already seen this message. It prevents infinite looping relays. The PoW is then verified. Every node keeps a record of hashes of previously relayed messages. If it has seen the hash, the message is discarded. If not, the hash is added to the record and the message is relayed to all neighbors.\\
 \texttt{Decryption}: The node then attempts decryption on the encrypted part. If decryption fails, the message is discarded. Otherwise, the original components are extracted (timestamp of creation, sender alias, internal address, and decoded message).\\
 \texttt{Verification}: The node then looks up the sender’s public key using the sender alias. If the alias is not found, the message is treated as \texttt{anonymous}, and the signature is not verified. Otherwise, the decryption product is used to verify the signature using the sender’s public key.\\
 \texttt{Aging}: The node verifies that the age of the message (difference between current timestamp and timestamp of creation) is less than the maximum message age. The maximum message age depends on how long the hash is stored by the node and can be different for different nodes.\\
@@ -65,7 +63,7 @@ Signature: The receiver verifies the message integrity and authenticity using th
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.55\linewidth]{decode_nbg.png}
+    \includegraphics[width=0.65\linewidth]{decode.png}
     \caption{Message decoding and relay process}
 \end{figure}
 
@@ -100,14 +98,14 @@ Pre-encryption data format (245 bytes)
 \end{tabular}
 \end{table}
 
-Encoded message layout (580 bytes)
+Encoded message layout (516 bytes)
 \begin{table}[h]
 \centering
-\begin{tabular}{|c|c|c|c|c|}
+\begin{tabular}{|c|c|c|c|}
 \hline
-\textbf{Version} & \textbf{Hash} & \textbf{Nonce} & \textbf{Encrypted blob} & \textbf{Signature} \\
+\textbf{Version} & \textbf{Nonce} & \textbf{Encrypted blob} & \textbf{Signature} \\
 \hline
-1 bytes & 64 bytes & 3 bytes & 256 bytes & 256 bytes \\
+1 bytes & 3 bytes & 256 bytes & 256 bytes \\
 \hline
 \end{tabular}
 \end{table}
@@ -162,7 +160,7 @@ Future work could explore efficient and secure partial flooding strategies, inte
 \section{Conclusion}
 EFPIX provides a robust framework for secure and censorship-resistant communication, protecting against invasive and potentially malicious surveillance. It also conceals “non-content” data from prying eyes. Its decentralized, flooding-based design ensures delivery even in restricted or faulty environments, making it an ideal option for disconnected, totalitarian, or disaster-struck areas.
 
-\begin{thebibliography}{10}
+\begin{thebibliography}{13}
 \bibitem{bamford2012}
 J. Bamford, \textit{The NSA Is Building the Country’s Biggest Spy Center (Watch What You Say)}, 
 \url{https://www.wired.com/2012/03/ff-nsadatacenter}, 2012.
