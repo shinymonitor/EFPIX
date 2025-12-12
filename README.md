@@ -1,6 +1,7 @@
 <div align="center">
     <img src="assets/LOGO.png", width="200"/>
     <h1>EFPIX</h1>
+    <h3><a href="https://arxiv.org/abs/2509.08248">[arXiv]</a>, <a href="https://github.com/shinymonitor/libefpix">[Implementation]</a></h3>
 </div>
 
 EFPIX (Encrypted Flood Protocol for Information eXchange) is a **zero-trust, encrypted flood-based relay communication protocol** designed for privacy, resilience, and metadata protection. It enables **end-to-end encryption**, **plausible deniability**, and **untraceable messaging**, even in hostile or degraded network environments.
