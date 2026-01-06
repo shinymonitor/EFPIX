@@ -9,6 +9,8 @@
 
 \usepackage[pdfauthor={Arin Upadhyay}, pdftitle={EFPIX: A zero-trust encrypted flood protocol}, pdfkeywords={encryption, flooding, anonymity, zero-trust, protocol, decentralized protocol, cryptography, censorship resistance}]{hyperref}
 
+
+
 \title{\textbf{EFPIX: A zero-trust encrypted flood protocol}}
 \author{Arin Upadhyay \\ \texttt{arinupadhyay.cs@gmail.com}}
 \date{\today}
@@ -20,24 +22,26 @@ We propose a flood-based relay communication protocol that achieves end-to-end e
 \end{abstract}
 
 \section{Introduction}
-In recent years, government and invasive intelligence agencies have transformed the Internet to erode many privacy rights using various surveillance programs, laws, and backdoors. \cite{bamford2012} \cite{heilman2014} \cite{pegasus2023} They are not hesitant to restrict or ban encryption. \cite{apple2025} They have the power to subpoena any data, track network traffic, and force shutdown of services that counter these issues. This has made journalism, whistle-blowing, and activism extremely dangerous. \cite{snowden2014} Any internet user who desires some privacy rights is powerless to protect their data from intrusive authorities. It is difficult to securely communicate over the Internet even if one's own devices are not compromised. 
+In recent years, governments and invasive intelligence agencies have transformed the Internet to erode privacy rights using various surveillance programs, laws, and backdoors. \cite{bamford2012} \cite{heilman2014} \cite{pegasus2023} They are not hesitant to restrict or ban encryption. \cite{apple2025} They have the power to subpoena any data, track network traffic, and force shutdown of services that counter these issues. This has made journalism, whistle-blowing, and activism extremely dangerous. \cite{snowden2014} Any internet user who desires some privacy rights is powerless to protect their data from intrusive authorities. It is difficult to securely communicate over the Internet even if one's own devices are not compromised. 
 
-An attractive solution to this problem is an encrypted flood protocol. Such protocols provide secure peer-to-peer communication while also being topology-independent and resilient to infrastructure failures. They can be used with radio communication to achieve wireless node-to-node fault-free networking. This has many possible applications, including space, research, and military fields, where the existence and maintenance of a central server is not feasible. They are also suitable for broadcast-type messages that reach all nodes in the network, such as emergency rescue calls, disaster warnings, news distribution, etc. 
+An attractive solution to this problem is an encrypted flood protocol. Such protocols provide secure peer-to-peer communication while also being topology-independent and resilient to infrastructure failures. They can be used with radio communication to achieve wireless node-to-node fault-tolerant networking. This has many possible applications, including space, research, and military fields, where the existence and maintenance of a central server is not feasible. They are also suitable for broadcast-type messages that reach all nodes in the network, such as emergency rescue calls, disaster warnings, news distribution, etc. 
 
-EFPIX (Encrypted Flood Protocol for Information eXchange) is a protocol that is designed with the above issues in mind. It is resilient to government surveillance, authoritarian takedown, infrastructure loss, and metadata leaks. It is ideal for peer-to-peer privacy-focused applications where a central network is unstable or infeasible. It uses public-key encryption and signatures along with a hashing function. The protocol is designed to prevent the identification of the source or destination of the message while also providing encryption. It is possible to build higher-layer protocols onto this protocol to serve various use cases. PoW requirements and deduplication offer some protection against simple network-level spam and abuse. However, it does not protect against endpoint or full topological compromise.
+EFPIX (Encrypted Flood Protocol for Information eXchange) is designed with the above issues in mind. It is resilient to government surveillance, authoritarian takedown, infrastructure loss, and metadata leaks. It is ideal for peer-to-peer privacy-focused applications where a central network is unstable or infeasible. It uses public-key encryption and signatures along with a hashing function. The protocol is designed to prevent the identification of the source or destination of the message while also providing encryption. It is possible to build higher-layer protocols onto this protocol to serve various use cases. PoW requirements and deduplication offer some protection against simple network-level spam and abuse. However, it does not protect against endpoint or full topological compromise.
 
 EFPIX is not intended for high-bandwidth or real-time applications such as live video streaming or gaming. Instead, it is optimized for asynchronous, privacy-critical communication, for example, email, secure file drops, whistleblower reports, offline messaging, or distributed alerts, where anonymity and resilience outweigh performance.
 
 \section{Overview}
 The desired message is encrypted and encoded before being relayed to all available nodes. If the message is already seen by a relaying node, it is not processed or further relayed. Otherwise, it relays the message to all neighbors. Then it attempts decryption with its private key.
-A \texttt{known} connection exists when the sender and receiver know each other’s public key and \texttt{alias}. \texttt{Alias} is a string that serves as a key/reference for a public key. The sender includes their alias in messages, allowing the receiver to retrieve the sender’s public key for signature verification. If a message contains an unknown alias, it is treated as \texttt{anonymous}, and the signature is not verified. Public keys and aliases are considered public information and can be exchanged through any available means. To prevent adversaries from linking messages to a common origin, users should practice good operational security by using unique aliases and key-pairs for each correspondent. The management of these identities is delegated to the user or higher-level applications, similar to identity management in protocols like Bitmessage. In practice, key exchange may itself be performed over EFPIX at a higher layer, using anonymous and unverified messages to transmit public keys and aliases in fragmented form as a "Connection Request".
+A \texttt{known} connection exists when the sender and receiver know each other’s public key and \texttt{alias}. \texttt{Alias} is a lookup key/reference for a public key. The sender includes their alias in messages, allowing the receiver to retrieve the sender’s public key for signature verification. If a message contains an unknown alias, it is treated as \texttt{anonymous}, and the signature is not verified. To prevent adversaries from linking messages to a common origin, users should practice good operational security by using unique aliases and key-pairs for each correspondent. Aliases are recommended to be unique random identifiers or truncated hashes of the public key to prevent collisions. The management of these identities is delegated to the user or higher-level applications, similar to identity management in protocols like Bitmessage. In practice, key exchange may itself be performed over EFPIX at a higher layer, using anonymous and unverified messages to transmit public keys and aliases as a "Connection Request".
 
 \section{Encoding}
 Before encryption, the desired message is concatenated with\\
 \texttt{Timestamp}: A compactly encoded representation of the message's creation date and time.\\
-\texttt{Sender Alias}: It serves as the key/reference to look up the sender’s public key to the receiver in its memory. It is agreed upon before the start of the communication. It can be different for different receivers. It is retrieved from the local (other alias) to (public key, my alias) map.\\
+\texttt{Sender Alias}: It serves as a key/reference to look up the sender’s public key to the receiver in its memory. It is agreed upon before the start of the communication. It can be different for different receivers. It is retrieved from the local "Contact" map (mapping (other alias) to {public Key, my alias}).\\
 \texttt{Internal Address}: It can be used in different ways; for instance, to identify sub-clients in the case of a server that acts as a proxy for multiple clients or in the case of multiple processes that can process the decoded message.\\
-This concatenated data is used to generate a signature using the sender’s private key. The concatenated data is encrypted using the receiver's public key which is also retrieved from the local (other alias) to (public key, my alias) map. The hash is computed on the encrypted blob and the signature. Finally, nonce, encrypted blob and signature are concatenated to produce the final encoded message.
+This concatenated data is used to generate a signature using the sender’s private key. 
+Then the signature is also concatenated with the payload. 
+This is encrypted using the receiver's public key which is also retrieved from the local Contact map. Finally, nonce and encrypted blob are concatenated to produce the final encoded message.
 
 \begin{figure}[h]
     \centering
@@ -46,17 +50,16 @@ This concatenated data is used to generate a signature using the sender’s priv
 \end{figure}
 
 Nonce: A proof-of-work (PoW) requirement must be met to minimize spam and tampering similar to Bitcoin \cite{bitcoin2008}. 
-However, the nonce is excluded from the hash calculation.
-PoW difficulty is chosen to cap the global theoretical message rate, ensuring that even high-performance nodes cannot flood the network beyond a theoretical maximum. This cost is incurred only by the sender, making it a user-side performance trade-off.\\
+However, the nonce is excluded from the deduplication hash calculation. This is done because an attacker can find a new valid nonce, resulting in a different deduplication hash even though the packet is the same.
+The PoW difficulty must be calibrated such that the cost of generation exceeds the aggregate cost of trial decryption across the local mesh neighborhood.\\
 Encryption: The encryption allows only the intended receiver to view the message and also metadata such as sender alias, internal address, and timestamp.\\
-Signature: The receiver verifies the message integrity and authenticity using the sender’s public key and signature. Inclusion of the timestamp in the signature serves as a simple counter to general replay attacks.
-
+Signature: The receiver verifies the message integrity and authenticity using the sender’s public key and signature. Inclusion of the timestamp in the signature serves as a simple counter to general replay attacks. For public key cryptography with payload size limit like RSA, the signature may be appended outside the encrypted blob, at the cost of lesser metadata protection by hiding it from network observers. \\
 
 \section{Decoding and Relaying}
 
-\texttt{Timestamp of reception}: The timestamp of data reception is recorded.\\
-\texttt{Deduplication}: A hash is calculated on the packet excluding the nonce. It is used to determine whether the relaying nodes have already seen this message. It prevents infinite looping relays. The PoW is then verified. Every node keeps a record of hashes of previously relayed messages. If it has seen the hash, the message is discarded. If not, the hash is added to the record and the message is relayed to all neighbors.\\
-\texttt{Decryption}: The node then attempts decryption on the encrypted part. If decryption fails, the message is discarded. Otherwise, the original components are extracted (timestamp of creation, sender alias, internal address, and decoded message).\\
+\texttt{Timestamp of reception}: The reception timestamp is recorded.\\
+\texttt{Deduplication}: The PoW is verified. Deduplication hash is calculated on the packet excluding the nonce. It is used to determine whether the relaying nodes have already seen this message. It prevents infinite looping relays. Every node keeps a record of hashes of previously relayed messages. If it has seen the hash, the message is discarded. If not, the hash is added to the record and the message is relayed to all neighbors.\\
+\texttt{Decryption}: Then the node attempts decryption on the encrypted part. If decryption fails, the message is discarded. Otherwise, the original components are extracted (timestamp of creation, sender alias, internal address, and decoded message).\\
 \texttt{Verification}: The node then looks up the sender’s public key using the sender alias. If the alias is not found, the message is treated as \texttt{anonymous}, and the signature is not verified. Otherwise, the decryption product is used to verify the signature using the sender’s public key.\\
 \texttt{Aging}: The node verifies that the age of the message (difference between current timestamp and timestamp of creation) is less than the maximum message age. The maximum message age depends on how long the hash is stored by the node and can be different for different nodes.\\
 \texttt{Result}: The decoded message data, timestamp of reception, timestamp of creation, sender alias, and internal address are the result of decoding.
@@ -68,44 +71,53 @@ Signature: The receiver verifies the message integrity and authenticity using th
 \end{figure}
 
 \section{Optional Improvements}
-\texttt{Sector-based routing}: To improve efficiency in large networks, the message can be flooded in only specific regions called \texttt{sectors}, which is an arbitrary group of nodes. However, this may come at the cost of a greater risk of deanonymization of the receiver and sender. Moreover, the sender must know in which sector the receiver is in.\\
+\texttt{Sector-based routing}: To improve efficiency in large networks, the message can be flooded in only specific regions called \texttt{sectors}, which is an arbitrary group of nodes. However, this may come at the cost of a greater risk of deanonymization of the receiver and sender. Moreover, the sender must know which sector the receiver is in.\\
 \texttt{Time To Live}: TTL is used in structured systems, but here topologies are unknown and dynamic. It may also increase the risk of deanonymization. It could be used for niche cases.\\
 \texttt{Better Seen-Hash}: The record of hashes of previously relayed messages can grow uncontrollably. It may be cleared after a random time or after reaching a size limit. Bloom filters or other data structures may be used.\\
 \texttt{Periodic key rotation}: Compromising a private key compromises all past messages encrypted to that key. Ephemeral keys or periodic key rotation may be used.\\
 \texttt{Dummy traffic}: Attempts of traffic analysis can be nullified by nodes creating and relaying dummy messages and/or relaying messages only after a short duration of random time.\\
 \texttt{Replay Attacks}: Replay is prevented via deduplication using PoW hash, signatures, and aging rules on relaying nodes. A replay will result in an immediate message drop by the attacker's neighbors since the hash is already seen, and by the receiver if the age is exceeded. More rules can be implemented on top, including session or one-time tokens or message counters.\\
 \texttt{HMAC-based Signatures}: Instead of public-key signatures, implementations can optionally use keyed HMAC signatures for message integrity verification. This improves performance but requires a pre-shared per-sender secret between sender and receiver at bootstrap.\\
-\texttt{Alternative Proof-of-Work Mechanisms}: Standard proof-of-work is vulnerable to adversaries with high-end parallel hardware (GPUs, ASICs). A better alternative is the use of Verifiable Delay Functions (VDFs) \cite{vdf2019}. VDFs require a specific duration of sequential computation, effectively neutralizing the advantage of parallel processors. This also providing more predictable message verification times.\\
+\texttt{Alternative Proof-of-Work Mechanisms}: Standard proof-of-work is vulnerable to adversaries with high-end parallel hardware (GPUs, ASICs). A better alternative is the use of Verifiable Delay Functions (VDFs) \cite{vdf2019}. VDFs require a specific duration of sequential computation, effectively neutralizing the advantage of parallel processors. This also provides more predictable message verification times.\\
 \texttt{Tagged Decryption}: A short, non-secret tag can be prepended to the encrypted blob to indicate the intended receiver. Nodes can quickly check this tag before attempting decryption. However, this may also increase the risk of deanonymization.\\
 
 EFPIX deliberately prioritizes maximum anonymity and resilience over performance (“0\% performance, 100\% security” by default). Optional optimizations such as sector-based routing or TTL may increase scalability but reduce anonymity. The choice depends entirely on application requirements.
 
 \section{Example Instantiation}
-EFPIX defines the protocol framework, flow, and components conceptually. The exact format, contents, cryptographic specifics, etc., are left to implementations. Implementations must tune PoW, hash memory limits, and safe key management to achieve optimal performance and security.
-However, an example instantiation is provided here. Implementations may use larger key sizes to increase the payload fraction (at the cost of slower cryptographic operations) or omit signatures for single-use anonymous messages to further reduce overhead.\\
+This example uses Curve25519 (X25519 for key exchange, Ed25519 for signatures) \cite{curve255192006}, BLAKE2b for hashing \cite{blake22013}, and authenticated encryption with XChaCha20-Poly1305. The proof-of-work requires a configurable number of leading zeros in the BLAKE2b hash. For further security against quantum adversaries, post-quantum algorithms such as Kyber for encryption and Dilithium for signatures could be integrated. \\
 
-This example uses RSA 2048 \cite{rsa1978} with 11 bytes OAEP padding \cite{oaep1995}, SHA-512 hash \cite{sha512} and 2 leading zeros for the PoW. This example uses RSA for simplicity. However, a production-grade implementation should consider elliptic-curve cryptography (ECC) or post-quantum public-key encryption for improved efficiency and long-term security. \\
-
-Pre-encryption data format (245 bytes)
+Pre-encryption data format for unicast messages (348 bytes):
 \begin{table}[h]
 \centering
-\begin{tabular}{|c|c|c|c|}
+\begin{tabular}{|c|c|c|c|c|}
 \hline
-\textbf{Timestamp} & \textbf{Sender Alias} & \textbf{Internal Address} & \textbf{Message} \\
+\textbf{Sender Alias} & \textbf{Timestamp} & \textbf{Internal Address} & \textbf{Message} & \textbf{Signature} \\
 \hline
-9 bytes & 16 bytes & 4 bytes & Up to encryption limit 216 bytes \\
+16 bytes & 8 bytes & 4 bytes & 256 bytes & 64 bytes \\
 \hline
 \end{tabular}
 \end{table}
 
-Encoded message layout (516 bytes)
+Encoded unicast message layout (430 bytes):
 \begin{table}[h]
 \centering
-\begin{tabular}{|c|c|c|c|}
+\begin{tabular}{|c|c|c|c|c|c|c|}
 \hline
-\textbf{Version} & \textbf{Nonce} & \textbf{Encrypted blob} & \textbf{Signature} \\
+\textbf{Version} & \textbf{Type} & \textbf{MAC} & \textbf{Nonce} & \textbf{Ephemeral PK} & \textbf{Ciphertext} & \textbf{PoW Nonce} \\
 \hline
-1 bytes & 3 bytes & 256 bytes & 256 bytes \\
+1 byte & 1 byte & 16 bytes & 24 bytes & 32 bytes & 348 bytes & 8 bytes \\
+\hline
+\end{tabular}
+\end{table}
+
+Broadcast message layout (signed, 430 bytes):
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+\textbf{Version} & \textbf{Type} & \textbf{Sign PK} & \textbf{Timestamp} & \textbf{Int. Addr.} & \textbf{Message} & \textbf{Signature} & \textbf{PoW Nonce} \\
+\hline
+1 byte & 1 byte & 32 bytes & 8 bytes & 4 bytes & 312 bytes & 64 bytes & 8 bytes \\
 \hline
 \end{tabular}
 \end{table}
@@ -189,23 +201,19 @@ S. Nakamoto, \textit{Bitcoin: A Peer-to-Peer Electronic Cash System},  \url{http
 Dan Boneh, Joseph Bonneau, Benedikt Bunz, and Ben Fisch, \textit{Verifiable Delay Functions},  
 \url{https://eprint.iacr.org/2018/601.pdf}, 2019.
 
-\bibitem{rsa1978}
-R. L. Rivest, A. Shamir, and L. Adleman, \textit{A Method for Obtaining Digital Signatures and Public-Key Cryptosystems},  
-\url{https://people.csail.mit.edu/rivest/Rsapaper.pdf}, 1978.
+\bibitem{curve255192006}
+Daniel J. Bernstein, \textit{Curve25519: new Diffie-Hellman speed records},  
+\url{https://cr.yp.to/ecdh/curve25519-20060209.pdf}, 2005.
 
-\bibitem{oaep1995}
-Mihir Bellare, Phillip Rogaway, \textit{Optimal Asymmetric Encryption - How to Encrypt with RSA},  
-\url{https://cseweb.ucsd.edu/~mihir/papers/oaep.pdf}, 1995.
-
-\bibitem{sha512}
-National Institute of Standards and Technology (NIST), \textit{FIPS PUB 180-4: Secure Hash Standard (SHS)}, 
-\url{https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf}, 2015.
+\bibitem{blake22013}
+Jean-Philippe Aumasson, Samuel Neves, Zooko Wilcox-O’Hearn, and Christian Winnerlein, \textit{BLAKE2: simpler, smaller, fast as MD5},  
+\url{https://www.blake2.net/blake2.pdf}, 2013.
 
 \bibitem{tor2004}
 R. Dingledine, N. Mathewson, and P. Syverson, \textit{Tor: The Second-Generation Onion Router}, \url{https://www.usenix.org/events/sec04/tech/dingledine.html}, 2004.
 
 \bibitem{bitmessage2012}
-J. Warren, \textit{Bitmessage: A Peer-to-Peer Message Authentication and Delivery System} \url{https://bitmessage.org/bitmessage.pdf}, 2012.
+J. Warren, \textit{Bitmessage: A Peer-to-Peer Message Authentication and Delivery System}, \url{https://bitmessage.org/bitmessage.pdf}, 2012.
 
 \bibitem{matrix2014}
 M. Hodgson and A. Le-Prevost, \textit{Matrix: An Open Network for Secure, Decentralized Communication} \url{https://matrix.org/docs/spec}, 2014.
