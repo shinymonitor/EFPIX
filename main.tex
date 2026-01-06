@@ -45,7 +45,7 @@ This is encrypted using the receiver's public key which is also retrieved from t
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.6\linewidth]{encode.png}
+    \includegraphics[width=0.7\linewidth]{encode.png}
     \caption{Message encoding process}
 \end{figure}
 
@@ -53,7 +53,7 @@ Nonce: A proof-of-work (PoW) requirement must be met to minimize spam and tamper
 However, the nonce is excluded from the deduplication hash calculation. This is done because an attacker can find a new valid nonce, resulting in a different deduplication hash even though the packet is the same.
 The PoW difficulty must be calibrated such that the cost of generation exceeds the aggregate cost of trial decryption across the local mesh neighborhood.\\
 Encryption: The encryption allows only the intended receiver to view the message and also metadata such as sender alias, internal address, and timestamp.\\
-Signature: The receiver verifies the message integrity and authenticity using the sender’s public key and signature. Inclusion of the timestamp in the signature serves as a simple counter to general replay attacks. For public key cryptography with payload size limit like RSA, the signature may be appended outside the encrypted blob, at the cost of lesser metadata protection by hiding it from network observers. \\
+Signature: The receiver verifies the message integrity and authenticity using the sender’s public key and signature. Inclusion of the timestamp in the signature serves as a simple counter to general replay attacks. For public key cryptography with payload size limit like RSA, the signature may be appended outside the encrypted blob, at the cost of lesser metadata protection by hiding it from network observers. 
 
 \section{Decoding and Relaying}
 
@@ -66,7 +66,7 @@ Signature: The receiver verifies the message integrity and authenticity using th
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.65\linewidth]{decode.png}
+    \includegraphics[width=0.9\linewidth]{decode.png}
     \caption{Message decoding and relay process}
 \end{figure}
 
@@ -122,8 +122,6 @@ Broadcast message layout (signed, 430 bytes):
 \end{tabular}
 \end{table}
 
-The protocol allows for extensibility. Optional headers can be used for the improvements based on the version byte, which enables future format upgrades. 
-
 \section{Threat Model and Security Analysis}
 
 \subsection{Adversary Model}
@@ -167,7 +165,7 @@ GPO Resistance         & Partial & \xmark & \xmark & \xmark \\
 \end{table}
 
 \section{Future Work}
-Future work could explore efficient and secure partial flooding strategies, integration with radio mesh hardware, and secure bootstrap methods for alias public key exchanges. Implementations can simulate or deploy on different networks to provide performance and other results to compare against existing protocols that aim to solve a similar problem. 
+Future work could explore integration with radio mesh hardware and secure bootstrap methods for alias public key exchanges. Implementations can simulate or deploy on different networks to provide performance and other results to compare against existing protocols that aim to solve a similar problem. 
 
 \section{Conclusion}
 EFPIX provides a robust framework for secure and censorship-resistant communication, protecting against invasive and potentially malicious surveillance. It also conceals “non-content” data from prying eyes. Its decentralized, flooding-based design ensures delivery even in restricted or faulty environments, making it an ideal option for disconnected, totalitarian, or disaster-struck areas.
